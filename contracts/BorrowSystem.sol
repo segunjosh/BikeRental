@@ -46,7 +46,7 @@ contract BorrowSystem {
     function hasActiveLoan(address borrower) public view returns (bool) {
         uint256 validLoans = loanMap[borrower].length;
         if (validLoans == 0) return false;
-        // Loan storage obj = loanList[loanMap[borrower][validLoans - 1]];
+        Loan storage obj = loanList[loanMap[borrower][validLoans - 1]];
         if (loanList[validLoans - 1].state == LoanState.ACCEPTING) return true;
         if (loanList[validLoans - 1].state == LoanState.LOCKED) return true;
         return false;
@@ -58,7 +58,7 @@ contract BorrowSystem {
         bytes32 mortgage
     ) public {
         if (hasActiveLoan(msg.sender)) return;
-        uint256 currentDate = block.number;
+        uint256 currentDate = block.timestamp;
         loanList.push(
             Loan(
                 msg.sender,
@@ -148,9 +148,9 @@ contract BorrowSystem {
                 if (proposalList[numI].state == ProposalState.ACCEPTED) {
                     uint256 original = proposalList[numI].amount;
                     uint256 rate = proposalList[numI].rate;
-                    uint256 now = block.number;
+                    uint256 blockTime = block.timestamp;
                     uint256 interest =
-                        (original * rate * (now - time)) /
+                        (original * rate * (blockTime - time)) /
                             (365 * 24 * 60 * 60 * 100);
                     finalamount += interest;
                     finalamount += original;
@@ -161,7 +161,7 @@ contract BorrowSystem {
     }
 
     function repayLoan(uint256 loanId) public payable {
-        uint256 now = block.number;
+        uint256 blockTime = block.timestamp;
         uint256 toBePaid = getRepayValue(loanId);
         uint256 time = loanList[loanId].startDate;
         uint256 paid = msg.value;
@@ -174,7 +174,7 @@ contract BorrowSystem {
                     uint256 original = proposalList[numI].amount;
                     uint256 rate = proposalList[numI].rate;
                     uint256 interest =
-                        (original * rate * (now - time)) /
+                        (original * rate * (blockTime - time)) /
                             (365 * 24 * 60 * 60 * 100);
                     uint256 finalamount = interest + original;
                     proposalList[numI].lender.transfer(finalamount);
