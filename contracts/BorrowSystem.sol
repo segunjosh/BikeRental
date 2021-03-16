@@ -46,7 +46,7 @@ contract BorrowSystem {
     function hasActiveLoan(address borrower) public view returns (bool) {
         uint256 validLoans = loanMap[borrower].length;
         if (validLoans == 0) return false;
-        Loan storage obj = loanList[loanMap[borrower][validLoans - 1]];
+        // Loan storage obj = loanList[loanMap[borrower][validLoans - 1]];
         if (loanList[validLoans - 1].state == LoanState.ACCEPTING) return true;
         if (loanList[validLoans - 1].state == LoanState.LOCKED) return true;
         return false;
